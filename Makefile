@@ -1,3 +1,5 @@
+# quíck and dirty makefile to sipcmd to replace autotools - yugh!
+# tuomo makkonen (tuomo.makkonen@iki.fi)
 CC=g++
 CFLAGS=-c -Wall 
 LIBS=-lopal -lpt
