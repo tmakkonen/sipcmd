@@ -1,8 +1,5 @@
 /*
  * sipcmd, channels.h
- * Copyright Cubical Solutions (C) 2008 
- * Takkatie 6 00370 
- * Helsinki, Finland
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
