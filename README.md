@@ -1,19 +1,4 @@
 <html>
-<head>
-<meta name="title" content="sipcmd - the command line sip/h323 softphone">
-<title>sipcmd - the command line SIP and H.323 softphone</title>
-
-<!-- i has ccs! -->
-<style>
-   pre       { border-style: solid;
-               border-width: 1px 1px 1px 1px;
-               border-color: #CCCCCC;
-               background-color: #FFFFF0;
-               padding: 6px 0px 5px 10px;
-             }
-</style>
-
-<head>
 <body>
 
 <h2>sipcmd - the command line SIP/H.323/RTP softphone</h2>
