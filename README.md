@@ -1,17 +1,54 @@
-testphone
-=========
+<html>
+<head>
+<meta name="title" content="sipcmd - the command line sip/h323 softphone">
+<title>sipcmd - the command line SIP and H.323 softphone</title>
 
+<!-- i has ccs! -->
+<style>
+   pre       { border-style: solid;
+               border-width: 1px 1px 1px 1px;
+               border-color: #CCCCCC;
+               background-color: #FFFFF0;
+               padding: 6px 0px 5px 10px;
+             }
+</style>
 
-### Introduction
+<head>
+<body>
 
-Command line soft phone that makes phone calls, accepts calls,
-enters DTMF digits, plays back WAV files and records them.
+<h2>sipcmd - the command line SIP/H.323/RTP softphone</h2>
 
-Not quite yet, though. WIP
+<h3>Introduction</h3>
+<p>
+Command line soft phone that makes phone calls, accepts calls, enters DTMF digits, plays back WAV files and records them. A useful testing tool for VoIP systems. Runs on Linux.
+</p>
 
-### Run
+<h3> NEWS </h3>
+Upgraded to latest versions of ptlib and opal avaliable on apt repos on Ubuntu 12.04. (3.10.2 and 2.10.2, respectively).
 
-testphone options:
+<h3> HOWTO </h3>
+<h4>### Dependencies</h4>
+<p>
+Apt-get install opal-dev and ptlib-dev packages.
+
+<h4>### Download</h4>
+<p>
+Get source tarball from GitHub.
+</p>
+
+<h4>### Compile</h4>
+<p>
+<code> make </code>
+</p>
+
+<h4>### Environment</h4>
+<p>
+If you compile the dependencies from source, make sure that libpt and libopal are in your <code>LD_LIBRARY_PATH</code>. The default installation location is <code>/usr/local/lib</code>.
+</p>
+
+<h4>### Run</h4>
+<b>testphone options:</b>
+<pre>
 -u <name> --user <name>         username (required)
 -a <name> --alias <name>        username alias
 -l <addr> --localaddress <addr> local address to listen on
@@ -22,19 +59,22 @@ testphone options:
 -f <file> --file <file>         the name of played sound file
 -g <addr> --gatekeeper <addr>   gatekeeper to use
 -w <addr> --gateway <addr>      gateway to use
+</pre>
+<p>
+<code>-l</code> or <code>-p</code> without <code>-x</code> assumes answer mode. Additional <code>-r</code> forces caller id checking. <code>-r</code> without <code>-l</code>, <code>-p</code> or <code>-x</code> assumes call mode.
+</p>
 
--l or -p without -x assumes answer mode. Additional -r forces
-caller id checking. -r without -l, -p or -x assumes call mode.
+<br>
+<b>WAV file requirements:</b>
+<ul>
+<li>mono
+<li> 8 kHz sampling rate
+<li> 16 bits sample size
+</ul>
 
-WAV file requirements:
-* format PCM
-* mono
-* 8 kHz sampling rate
-* 16 bits sample size
-
-
-The EBNF definition of the program syntax:
-<prog>	:=  cmd ';' <prog> |
+<b>The EBNF definition of the program syntax:</b>
+<pre>
+prog	:=  cmd ';' <prog> |
 cmd	:=  call | answer | hangup
 	  | dtmf | voice | record | wait
 	  | setlabel | loop
@@ -52,21 +92,31 @@ activity:=  'a'
 wait	:=  'w' [ activity | silence ] [ closed ] millis
 setlabel:=  'l' label
 loop	:=  'j' [ how-many-times ] [ 'l' label ]
+</pre>
+<b>Example:</b><br><br>
+<code>
+"l4;c333;ws3000;d123;w200;lthrice;ws1000;vaudio;rsi4000f.out;j3lthrice;h;j4"
+</code>
+<br><br>
+Parses to the following:
+<ol>
+  <li> do this four times:
+    <ol> 
+      <li> call to 333
+      <li> wait until silent (max 3000 ms)
+      <li> send dtmf digits 123
+      <li> wait 200 ms 
+      <li> do this three times:
+      <ol>
+        <li> wait until silent (max 1000 ms)
+        <li> send sound file 'audio'
+        <li> record until silent (max 4000 ms) to files 'f-[0-3]-[0-2].out'
+      </ol>
+      <li> hangup
+      <li> wait 2000 ms
+  </ol>
+</ol>
+<hr>
+</body>
+</html>
 
-Example:
-"c333;ws3000;d123;w200;lthrice;ws1000;vaudio;rsi4000f.out;j3lthrice;h;j4"
-parses to
-1. do this four times:
-1.1. call to 333
-1.2. wait until silent (max 3000 ms)
-1.3. send digits 123
-1.4. wait 200 ms
-1.5. do this three times:
-1.5.1. wait until silent (max 1000 ms)
-1.5.2. send voice file 'audio'
-1.5.3. record until silent (max 4000 ms) to files 'f-'<0-3>'-'<0-2>'.out'
-1.6. hangup
-1.7. wait 2000 ms
-
-
-### END OF FILE ###
