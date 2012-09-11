@@ -37,17 +37,19 @@ static std::string stringify(const PString &broken) {
 
 static void print_help() {
     cerr << "sipcmd options: " << endl
-        << "-u <name> --user <name>         username (required)" << endl
-        << "-a <name> --alias <name>        username alias" << endl 
-        << "-l <addr> --localaddress <addr> local address to listen on" << endl 
-        << "-o <file> --opallog <file>      enable extra opal library logging to file" << endl
-        << "-p <port> --listenport <port>   the port to listen on" << endl 
-        << "-r <nmbr> --remoteparty <nmbr>  the party to call to" << endl 
-        << "-x <prog> --execute <prog>      program to follow" << endl  
-        << "-d <prfx> --audio-prefix <prfx> recorded audio filename prefix" << endl 
-        << "-f <file> --file <file>         the name of played sound file" << endl 
-        << "-g <addr> --gatekeeper <addr>   gatekeeper to use" << endl 
-        << "-w <addr> --gateway <addr>      gateway to use" << endl << endl;
+        << "-u <name>   --user <name>         username (required)" << endl
+        << "-a <name>   --alias <name>        username alias" << endl 
+        << "-l <addr>   --localaddress <addr> local address to listen on" << endl 
+        << "-o <file>   --opallog <file>      enable extra opal library logging to file" << endl
+        << "-p <port>   --listenport <port>   the port to listen on" << endl 
+        << "-P <proto>  -- protocol <proto>   sip/h323/rtp (required)" << endl 
+        << "-r <nmbr>   --remoteparty <nmbr>  the party to call to" << endl 
+        << "-x <prog>   --execute <prog>      program to follow" << endl  
+        << "-d <prfx>   --audio-prefix <prfx> recorded audio filename prefix" << endl 
+        << "-f <file>   --file <file>         the name of played sound file" << endl 
+        << "-R <params> --register            register, params format '<registrar>;<user>;<password>;<realm>'" << endl
+        << "-g <addr>   --gatekeeper <addr>   gatekeeper to use" << endl 
+        << "-w <addr>   --gateway <addr>      gateway to use" << endl << endl;
 
     cerr << "The EBNF definition of the program syntax:" << endl
         << "<prog>  := cmd ';' <prog> | " << endl
@@ -238,7 +240,7 @@ bool LocalEndPoint::OnWriteMediaData(
 }
 
 Manager::Manager() : localep(NULL), sipep(NULL), h323ep(NULL), 
-  listenmode(false), listenerup(false)
+  listenmode(false), listenerup(false), pauseBeforeDialing(false)
 {
   std::cout << __func__  << std::endl;
 }
@@ -256,10 +258,16 @@ void Manager::Main(PArgList &args)
   std::cout << __func__ << std::endl;
 
 
-  // silence detection
-      OpalSilenceDetector::Params sd = GetSilenceDetectParams();
+    // silence detection
+    OpalSilenceDetector::Params sd = GetSilenceDetectParams();
     sd.m_mode = OpalSilenceDetector::AdaptiveSilenceDetection;
     SetSilenceDetectParams(sd);
+
+    if (pauseBeforeDialing) {
+        cout << "sleep 2000 ms to allow time for registration ... " << std::endl; 
+        PThread::Sleep(2000);
+        cout << "Done!" << std::endl;
+    }
 
     // init command sequence
     const char *cmdseq = "";
@@ -307,6 +315,7 @@ bool Manager::Init(PArgList &args)
             "o-opallog:"
             "p-listenport:"
             "P-protocol:"
+            "R-register:"
             "x-execute:"
             "f-file:"
             "g-gatekeeper:"
@@ -383,6 +392,39 @@ bool Manager::Init(PArgList &args)
     if (args.HasOption('w')) {
         std::string val = args.GetOptionString('w');
         TPState::Instance().SetGateway(val);
+    }
+
+
+    // register
+    if (args.HasOption('R')) {
+        if (!sipep) {
+            std::cerr << "SIP registering requires SIP (duh!)" << endl;
+            return false;
+        }
+
+        // quick and dirty way to get neccessary parameters:
+        // 0-> registrar, 1-> username, 2-> password, 3-> realm
+        PStringArray arr = args.GetOptionString('R').Tokenise(';');
+        if (arr.GetSize() != 4) {
+            std::cerr << "invalid register parameter";
+            return false;
+        }
+
+        SIPRegister::Params p;
+        p.m_registrarAddress = arr[0];
+        p.m_addressOfRecord = arr[1];
+        p.m_password = arr[2];
+        p.m_realm = arr[3];
+
+        PString aor;
+        if (sipep->Register(p, aor)) {
+            std::cout << "Using SIP registrar " << p.m_registrarAddress << " for " << aor << endl;
+            pauseBeforeDialing = true;
+        }
+        else 
+            std::cout << "Could not use SIP registrar " << p.m_registrarAddress << endl;
+
+
     }
 
     

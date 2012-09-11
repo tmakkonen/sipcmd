@@ -174,6 +174,7 @@ class Manager : public OpalManager
         std::string outputfile;
         bool listenmode;
         bool listenerup;
+        bool pauseBeforeDialing;
 
         Manager(const Manager&);
         Manager operator=(Manager&);
