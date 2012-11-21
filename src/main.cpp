@@ -38,6 +38,7 @@ static std::string stringify(const PString &broken) {
 static void print_help() {
     cerr << "sipcmd options: " << endl
         << "-u <name>   --user <name>         username (required)" << endl
+        << "-c <passw>  --password <passw>    password for registration" << endl
         << "-a <name>   --alias <name>        username alias" << endl 
         << "-l <addr>   --localaddress <addr> local address to listen on" << endl 
         << "-o <file>   --opallog <file>      enable extra opal library logging to file" << endl
@@ -47,7 +48,6 @@ static void print_help() {
         << "-x <prog>   --execute <prog>      program to follow" << endl  
         << "-d <prfx>   --audio-prefix <prfx> recorded audio filename prefix" << endl 
         << "-f <file>   --file <file>         the name of played sound file" << endl 
-        << "-R <params> --register            register, params format '<registrar>;<user>;<password>;<realm>'" << endl
         << "-g <addr>   --gatekeeper <addr>   gatekeeper to use" << endl 
         << "-w <addr>   --gateway <addr>      gateway to use" << endl << endl;
 
@@ -72,7 +72,7 @@ static void print_help() {
         << "setlabel:= 'l' label" << endl
         << "loop    := 'j' [ how-many-times ] [ 'l' label ]" << endl;
 
-    cout << endl << "Example:" << endl
+    cerr << endl << "Example:" << endl
         << "\"c333;ws3000;d123;w200;lthrice;ws1000;vaudio;rsi4000f.out;" 
         << "j3lthrice;h;j4\"" << endl
         << "parses to: " << endl
@@ -311,6 +311,7 @@ bool Manager::Init(PArgList &args)
     // Parse various command line arguments
     args.Parse(
             "u-user:"
+            "c-password:"
             "l-localaddress:"
             "o-opallog:"
             "p-listenport:"
@@ -359,12 +360,34 @@ bool Manager::Init(PArgList &args)
         AddRouteEntry("local:.* = sip:<da>");
         AddRouteEntry("sip:.* = local:<db>");
 
-        if (!StartListener()) { 
-            return false;
-        }
-
         if (args.HasOption('u')) {
             sipep->SetDefaultLocalPartyName(args.GetOptionString('u'));
+        }
+
+        if (args.HasOption('c')) {
+            SIPRegister::Params param;
+            param.m_registrarAddress = args.GetOptionString('w');
+            param.m_addressOfRecord = args.GetOptionString('u');
+            param.m_password = args.GetOptionString('c');
+            param.m_realm = args.GetOptionString('g');
+
+            PString *aor = new PString("");
+            sipep->SetProxy(args.GetOptionString('w'));
+            if (sipep->Register(param, *aor)) { 
+                cout 
+                    << "Could not register to " 
+                    << param.m_registrarAddress << endl;
+                return false;
+            }
+            else {
+                cout 
+                    << "registered as " 
+                    << aor->GetPointer(aor->GetSize()) << endl;
+            }
+        }
+
+        if (!StartListener()) { 
+            return false;
         }
 
         TPState::Instance().SetProtocol(TPState::SIP);
@@ -394,40 +417,6 @@ bool Manager::Init(PArgList &args)
         TPState::Instance().SetGateway(val);
     }
 
-
-    // register
-    if (args.HasOption('R')) {
-        if (!sipep) {
-            std::cerr << "SIP registering requires SIP (duh!)" << endl;
-            return false;
-        }
-
-        // quick and dirty way to get neccessary parameters:
-        // 0-> registrar, 1-> username, 2-> password, 3-> realm
-        PStringArray arr = args.GetOptionString('R').Tokenise(';');
-        if (arr.GetSize() != 4) {
-            std::cerr << "invalid register parameter";
-            return false;
-        }
-
-        SIPRegister::Params p;
-        p.m_registrarAddress = arr[0];
-        p.m_addressOfRecord = arr[1];
-        p.m_password = arr[2];
-        p.m_realm = arr[3];
-
-        PString aor;
-        if (sipep->Register(p, aor)) {
-            std::cout << "Using SIP registrar " << p.m_registrarAddress << " for " << aor << endl;
-            pauseBeforeDialing = true;
-        }
-        else 
-            std::cout << "Could not use SIP registrar " << p.m_registrarAddress << endl;
-
-
-    }
-
-    
     SetAudioJitterDelay(20, 1000);
     DisableDetectInBandDTMF(true);
 
@@ -488,14 +477,17 @@ void RTPSession::SelectAudioFormat(const Payload payload)
     case PCM16:
       m_audioformat = new OpalAudioFormat(
           "OPAL_PCM16", RTP_DataFrame::MaxPayloadType, "", 16, 8, 240, 0, 256, 8000, 0);
+      cout << "Payload format: OPAL_PCM16" << endl;
       break;
     case G711_ULAW:
       m_audioformat = new OpalAudioFormat(
           "OPAL_G711_ULAW_64K", RTP_DataFrame::PCMU, "PCMU", 16, 8, 240, 0, 256, 8000, 0);
+      cout << "Payload format: OPAL_G711_ULAW_64K" << endl;
       break;
     case G711_ALAW:
       m_audioformat = new OpalAudioFormat(
           "OPAL_G711_ALAW_64K", RTP_DataFrame::PCMA, "PCMA", 16, 8, 240, 0, 256, 8000, 0);
+      cout << "Payload format: OPAL_G711_ULAW_64K" << endl;
       break;
   }
 }

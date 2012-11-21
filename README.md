@@ -14,7 +14,11 @@ Upgraded to latest versions of ptlib and opal avaliable on apt repos on Ubuntu 1
 <h3> HOWTO </h3>
 <h4>### Dependencies</h4>
 <p>
-Apt-get install opal-dev and ptlib-dev packages.
+<code> 
+apt-get install opal-dev ptlib-dev 
+</code>
+
+</p>
 
 <h4>### Download</h4>
 <p>
@@ -24,6 +28,9 @@ Get source tarball from GitHub.
 <h4>### Compile</h4>
 <p>
 <code> make </code>
+
+To disable debug messages, comment out DEBUG flag from Makefile
+
 </p>
 
 <h4>### Environment</h4>
@@ -35,6 +42,7 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 <b>testphone options:</b>
 <pre>
 -u <name> --user <name>         username (required)
+-c <pass> --password <pass>     password for registration 
 -a <name> --alias <name>        username alias
 -l <addr> --localaddress <addr> local address to listen on
 -p <port> --listenport <port>   the port to listen on
@@ -47,6 +55,9 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 </pre>
 <p>
 <code>-l</code> or <code>-p</code> without <code>-x</code> assumes answer mode. Additional <code>-r</code> forces caller id checking. <code>-r</code> without <code>-l</code>, <code>-p</code> or <code>-x</code> assumes call mode.
+
+To register to a gateaway, specify <code>-c</code>, <code>-g</code> and <code>-w</code> 
+
 </p>
 
 <br>
