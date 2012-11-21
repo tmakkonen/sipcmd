@@ -27,7 +27,7 @@ Get source tarball from GitHub.
 
 <h4>### Compile</h4>
 <p>
-<code> make </code>
+<code> make </code><br>
 
 To disable debug messages, comment out DEBUG flag from Makefile
 
@@ -55,7 +55,7 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 </pre>
 <p>
 <code>-l</code> or <code>-p</code> without <code>-x</code> assumes answer mode. Additional <code>-r</code> forces caller id checking. <code>-r</code> without <code>-l</code>, <code>-p</code> or <code>-x</code> assumes call mode.
-
+<br>
 To register to a gateaway, specify <code>-c</code>, <code>-g</code> and <code>-w</code> 
 
 </p>
