@@ -373,6 +373,11 @@ bool Manager::Init(PArgList &args)
 
             PString *aor = new PString("");
             //sipep->SetProxy(args.GetOptionString('w'));
+
+	    if (!StartListener()) { 
+	      return false;
+	    }
+
             if (!sipep->Register(param, *aor)) { 
                 cout 
                     << "Could not register to " 
@@ -384,10 +389,6 @@ bool Manager::Init(PArgList &args)
                     << "registered as " 
                     << aor->GetPointer(aor->GetSize()) << endl;
             }
-        }
-
-        if (!StartListener()) { 
-            return false;
         }
 
         TPState::Instance().SetProtocol(TPState::SIP);
