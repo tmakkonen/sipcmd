@@ -10,7 +10,7 @@ EXECUTABLE=sipcmd
 DEBUG=-g -DDEBUG
 
 all: $(SOURCES) $(EXECUTABLE)
-		
+
 $(EXECUTABLE): $(OBJECTS) 
 		$(CC) $(OBJECTS) -o $@ $(LIBS) 
 

@@ -108,13 +108,13 @@ class TestChannel : public PIndirectChannel
         TestChannel(OpalConnection &conn, TestChanAudio &chan) : 
             connection(conn), audiohandle(chan), is_open(false),
             readDelay(), writeDelay() {
-                std::cout << __func__ << "[" << 
-                    (unsigned int)this << "]" << std::endl; 
+                std::cout << __func__ << "[ " << 
+		  this->connection << " - " << this << " ]" << std::endl; 
             }
         
         ~TestChannel() {
-            std::cout << __func__ << "[" << (unsigned int)this 
-               << "]" << std::endl; 
+	  std::cout << __func__ << "[ " << this->connection 
+               << " - " << this << " ]" << std::endl; 
             Close();
         }
 
