@@ -372,8 +372,13 @@ bool Manager::Init(PArgList &args)
             param.m_realm = args.GetOptionString('g');
 
             PString *aor = new PString("");
-            sipep->SetProxy(args.GetOptionString('w'));
-            if (sipep->Register(param, *aor)) { 
+            //sipep->SetProxy(args.GetOptionString('w'));
+
+	    if (!StartListener()) { 
+	      return false;
+	    }
+
+            if (!sipep->Register(param, *aor)) { 
                 cout 
                     << "Could not register to " 
                     << param.m_registrarAddress << endl;
@@ -384,10 +389,6 @@ bool Manager::Init(PArgList &args)
                     << "registered as " 
                     << aor->GetPointer(aor->GetSize()) << endl;
             }
-        }
-
-        if (!StartListener()) { 
-            return false;
         }
 
         TPState::Instance().SetProtocol(TPState::SIP);

@@ -334,7 +334,8 @@ void TestChanAudio::RecordFromBuffer(
 }
 
 bool TestChannel::Close() {
-    cout << __func__ << " [" << (unsigned int)this << "]" << endl;
+    cout << __func__ << " [ " << this->connection 
+	 << " - " << this <<  " ]" << endl;
     audiohandle.CloseChannel();
     return true;
 }
