@@ -66,7 +66,7 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 To register to a gateaway, specify <code>-c</code>, <code>-g</code> and <code>-w</code>
 <br><b>Example:</b><br><br>
 <code>
-./sipcmd -P sip -u <username> -c <password> -w <server> -x "c<number>;w200;d12345"
+./sipcmd -P sip -u [username] -c [password] -w [server] -x "c<number>;w200;d12345"
 </code>
 </p>
 
