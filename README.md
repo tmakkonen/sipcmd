@@ -14,8 +14,13 @@ Upgraded to latest versions of ptlib and opal avaliable on apt repos on Ubuntu 1
 <h3> HOWTO </h3>
 <h4>### Dependencies</h4>
 <p>
+<h5>Ubuntu</h5>
 <code> 
-apt-get install opal-dev ptlib-dev 
+ apt-get install opal-dev ptlib-dev 
+</code>
+<h5>Debian</h5>
+<code> 
+ apt-get install libopal-dev libpt-dev 
 </code>
 <p>Or for Ubuntu 12.10</p>
 <code>apt-get install libpt-dev libopal-dev</code>
@@ -43,10 +48,12 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 <b>testphone options:</b>
 <pre>
 -u <name> --user <name>         username (required)
--c <pass> --password <pass>     password for registration 
+-c <passw> --password <passw>   password for registration
 -a <name> --alias <name>        username alias
 -l <addr> --localaddress <addr> local address to listen on
+-o <file> --opallog <file>      enable extra opal library logging to file
 -p <port> --listenport <port>   the port to listen on
+-P <proto> --protocol <proto>   sip/h323/rtp (required)
 -r <nmbr> --remoteparty <nmbr>  the party to call to
 -x <prog> --execute <prog>      program to follow
 -d <prfx> --audio-prefix <prfx> recorded audio filename prefix
@@ -57,8 +64,11 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 <p>
 <code>-l</code> or <code>-p</code> without <code>-x</code> assumes answer mode. Additional <code>-r</code> forces caller id checking. <code>-r</code> without <code>-l</code>, <code>-p</code> or <code>-x</code> assumes call mode.
 <br>
-To register to a gateaway, specify <code>-c</code>, <code>-g</code> and <code>-w</code> 
-
+To register to a gateaway, specify <code>-c</code>, <code>-g</code> and <code>-w</code>
+<br><b>Example:</b><br><br>
+<code>
+./sipcmd -P sip -u [username] -c [password] -w [server] -x "c<number>;w200;d12345"
+</code>
 </p>
 
 <br>
