@@ -35,6 +35,8 @@
 #define WAIT_SILENCE_TIME_IN_MS			300U
 #define WAIT_ACTIVITY_TIME_IN_MS		100U
 #define RECORD_SILENCE_TIME_IN_MS		300U
+// global dailing timeout in seconds
+#define DIAL_TIMEOUT				10
 
 class TPState {
   private:
@@ -66,7 +68,7 @@ class TPState {
       if( state != TERMINATED)
         state = newstate;
       if( someonewaiting)
-        stateEventSync.Signal( PTimeInterval( 10000)); // 10 secs ok?
+        stateEventSync.Signal( PTimeInterval( 100 ) ); // 0.1 seconds to allow calls to timeout with more accuracy
       stateSync.Signal();
     }
 
@@ -80,6 +82,7 @@ class TPState {
 
     TPConnState WaitForStateChange( TPConnState breakonstate = TERMINATED) {
       // NOTE: not synchronized for multiple waiting threads
+      // Waiting for a state change
       stateSync.Wait();
       if( state == TERMINATED  ||  state == breakonstate) {
         stateSync.Signal();
@@ -87,7 +90,8 @@ class TPState {
       }
       someonewaiting = true;
       stateSync.Signal();
-      stateEventSync.Wait();
+
+      stateEventSync.Wait( PTimeInterval( 100 ) );
       TPConnState newstate = state;
       someonewaiting = false;
       stateEventSync.Acknowledge();
