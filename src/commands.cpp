@@ -161,9 +161,14 @@ bool Call::RunCommand(const std::string &loopsuffix) {
     tpstate.SetState(state);
 
   do {
+    cout << "TestPhone::Main: calling \"" << rp << "\""
+	 << " for " << difftime(time(NULL), secsnow) << endl;
     state = tpstate.WaitForStateChange(TPState::ESTABLISHED);
     if(state == TPState::TERMINATED) {
       errorstring = "Call: application terminated";
+      return false;
+    } else if (difftime(time(NULL), secsnow) > DIAL_TIMEOUT) {
+      errorstring = "Call: Dial timed out";
       return false;
     }
   } while(state == TPState::CONNECTING);
