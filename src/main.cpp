@@ -473,7 +473,6 @@ void RTPSession::SelectAudioFormat(const Payload payload)
   if (m_audioformat) 
     delete m_audioformat;
 
-  OpalMediaFormatInternal *fmt = NULL;
   switch(payload) {
     case PCM16:
       m_audioformat = new OpalAudioFormat(
