@@ -363,7 +363,9 @@ bool Manager::Init(PArgList &args)
         if (args.HasOption('u')) {
             sipep->SetDefaultLocalPartyName(args.GetOptionString('u'));
         }
-
+	if (args.HasOption('a')) {
+             sipep->SetDefaultDisplayName(args.GetOptionString('a'));
+        }
         if (args.HasOption('c')) {
             SIPRegister::Params param;
             param.m_registrarAddress = args.GetOptionString('w');
