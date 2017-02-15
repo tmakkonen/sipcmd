@@ -37,7 +37,6 @@ static std::string stringify(const PString &broken) {
 
 static void print_help() {
     cerr << "sipcmd options: " << endl
-        << "-T <timeout> --dialtimeout <timeout>  dial timeout in seconds" << endl
         << "-u <name>    --user <name>            username (required)" << endl
         << "-c <passw>   --password <passw>       password for registration" << endl
         << "-l <addr>    --localaddress <addr>    local address to listen on" << endl 
