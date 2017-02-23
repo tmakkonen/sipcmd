@@ -689,8 +689,26 @@ void Manager::AdjustMediaFormats(
   OpalMediaFormatList & mediaFormats  ///<  Media formats to use
 ) const
 {
-     PStringArray mask("!"+mediaFilter);
-     mediaFormats.Remove(mask);
+    std::cout << "available codes" << std::endl;
+    for (OpalMediaFormatList::iterator it1 = mediaFormats.begin(); it1!=mediaFormats.end(); it1++)
+    {
+        std::cout << "  " << it1->GetName() << std::endl;
+    }
+     
+    PStringArray mask;
+    std::string s;   
+    istringstream ss(mediaFilter);
+    while (getline(ss, s, ';')) 
+    {
+        mask.AppendString("!"+s);
+    }
+    mediaFormats.Remove(mask);
+    
+    std::cout << "used codes" << std::endl;
+    for (OpalMediaFormatList::iterator it2 = mediaFormats.begin(); it2!=mediaFormats.end(); it2++)
+    {
+        std::cout << "  " << it2->GetName() << std::endl;
+    }
 }
 
 bool Manager::OnIncomingConnection(OpalConnection &connection, unsigned opts,
