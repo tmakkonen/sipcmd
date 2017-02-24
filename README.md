@@ -64,6 +64,7 @@ If you compile the dependencies from source, make sure that libpt and libopal ar
 -f <file> --file <file>         the name of played sound file
 -g <addr> --gatekeeper <addr>   gatekeeper to use
 -w <addr> --gateway <addr>      gateway to use
+-m <codec> -mediaformat <codec> one or more codecs to use, separated by semicolon; wildcards are supported (e.g. -m "G.711*;G.722*")
 </pre>
 <p>
 <code>-l</code> or <code>-p</code> without <code>-x</code> assumes answer mode. Additional <code>-r</code> forces caller id checking. <code>-r</code> without <code>-l</code>, <code>-p</code> or <code>-x</code> assumes call mode.
