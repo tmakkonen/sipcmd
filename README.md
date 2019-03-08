@@ -22,6 +22,12 @@ Upgraded to latest versions of ptlib and opal avaliable on apt repos on Ubuntu 1
 <code> 
  apt-get install libopal-dev
 </code>
+
+<h5>Ubuntu 18.04 Bionic</h5>
+<code>
+apt-get install libopal-dev sip-dev libpt-dev
+</code>
+
 <h5>Debian</h5>
 <code> 
  apt-get install libopal-dev libpt-dev 
