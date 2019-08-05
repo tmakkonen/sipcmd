@@ -457,9 +457,9 @@ bool RawMediaStream::WriteData(const BYTE *data,
             cout << "silence write failed!" << endl;
             return false;
         }
+        written = m_channel->GetLastWriteCount();
         CollectAverage(silence, written);
     }
-    written = m_channel->GetLastWriteCount();
     // cout << "wrote " << written << endl;
     return true;
     //return OpalRawMediaStream::WriteData(data, length, written);
