@@ -312,6 +312,7 @@ bool Manager::Init(PArgList &args)
     args.Parse(
             "u-user:"
             "c-password:"
+            "a-alias:"
             "l-localaddress:"
             "o-opallog:"
             "p-listenport:"
