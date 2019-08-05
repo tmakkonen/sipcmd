@@ -134,6 +134,12 @@ class Manager : public OpalManager
 
         virtual void OnClosedMediaStream (
                 const OpalMediaStream &stream);
+        
+        virtual void AdjustMediaFormats(
+          bool local,                         ///<  Media formats a local ones to be presented to remote
+          const OpalConnection & connection,  ///<  Connection that is about to use formats
+          OpalMediaFormatList & mediaFormats  ///<  Media formats to use
+        ) const;
 
         // Connection Management
         virtual bool OnIncomingConnection(
@@ -175,6 +181,7 @@ class Manager : public OpalManager
         bool listenmode;
         bool listenerup;
         bool pauseBeforeDialing;
+        std::string mediaFilter;
 
         Manager(const Manager&);
         Manager operator=(Manager&);

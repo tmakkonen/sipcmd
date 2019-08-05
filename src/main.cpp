@@ -37,19 +37,20 @@ static std::string stringify(const PString &broken) {
 
 static void print_help() {
     cerr << "sipcmd options: " << endl
-        << "-u <name>   --user <name>         username (required)" << endl
-        << "-c <passw>  --password <passw>    password for registration" << endl
-        << "-a <name>   --alias <name>        username alias" << endl 
-        << "-l <addr>   --localaddress <addr> local address to listen on" << endl 
-        << "-o <file>   --opallog <file>      enable extra opal library logging to file" << endl
-        << "-p <port>   --listenport <port>   the port to listen on" << endl 
-        << "-P <proto>  -- protocol <proto>   sip/h323/rtp (required)" << endl 
-        << "-r <nmbr>   --remoteparty <nmbr>  the party to call to" << endl 
-        << "-x <prog>   --execute <prog>      program to follow" << endl  
-        << "-d <prfx>   --audio-prefix <prfx> recorded audio filename prefix" << endl 
-        << "-f <file>   --file <file>         the name of played sound file" << endl 
-        << "-g <addr>   --gatekeeper <addr>   gatekeeper to use" << endl 
-        << "-w <addr>   --gateway <addr>      gateway to use" << endl << endl;
+        << "-u <name>    --user <name>            username (required)" << endl
+        << "-c <passw>   --password <passw>       password for registration" << endl
+        << "-l <addr>    --localaddress <addr>    local address to listen on" << endl 
+        << "-o <file>    --opallog <file>         enable extra opal library logging to file" << endl
+        << "-p <port>    --listenport <port>      the port to listen on" << endl 
+        << "-P <proto>   -- protocol <proto>      sip/h323/rtp (required)" << endl 
+        << "-r <nmbr>    --remoteparty <nmbr>     the party to call to" << endl 
+        << "-x <prog>    --execute <prog>         program to follow" << endl  
+        << "-d <prfx>    --audio-prefix <prfx>    recorded audio filename prefix" << endl 
+        << "-f <file>    --file <file>            the name of played sound file" << endl 
+        << "-g <addr>    --gatekeeper <addr>      gatekeeper to use" << endl 
+        << "-w <addr>    --gateway <addr>         gateway to use" << endl 
+        << "-a <name>    --alias <name>           username alias" << endl << endl
+        << "-m <codec>   --mediaformat <codec>   select codec" << endl << endl;
 
     cerr << "The EBNF definition of the program syntax:" << endl
         << "<prog>  := cmd ';' <prog> | " << endl
@@ -240,7 +241,8 @@ bool LocalEndPoint::OnWriteMediaData(
 }
 
 Manager::Manager() : localep(NULL), sipep(NULL), h323ep(NULL), 
-  listenmode(false), listenerup(false), pauseBeforeDialing(false)
+  listenmode(false), listenerup(false), pauseBeforeDialing(false),
+  mediaFilter("*")
 {
   std::cout << __func__  << std::endl;
 }
@@ -276,6 +278,11 @@ void Manager::Main(PArgList &args)
     if (args.HasOption('x')) {
         
         cmdseq = args.GetOptionString('x');
+    }
+
+    if (args.HasOption('m')) {
+        
+        mediaFilter = stringify(args.GetOptionString('m'));
     }
 
     // Parse command sequence
@@ -323,6 +330,7 @@ bool Manager::Init(PArgList &args)
             "g-gatekeeper:"
             "w-gateway:"
             "h-help:"
+            "m-mediaformat:"
             );
 
 
@@ -673,6 +681,35 @@ OpalConnection::AnswerCallResponse Manager::OnAnswerCall(
 void Manager::OnClosedMediaStream (const OpalMediaStream &stream)
 {
     std::cout << __func__ << std::endl;
+}
+
+        
+void Manager::AdjustMediaFormats(
+  bool local,                         ///<  Media formats a local ones to be presented to remote
+  const OpalConnection & connection,  ///<  Connection that is about to use formats
+  OpalMediaFormatList & mediaFormats  ///<  Media formats to use
+) const
+{
+    std::cout << "available codes" << std::endl;
+    for (OpalMediaFormatList::iterator it1 = mediaFormats.begin(); it1!=mediaFormats.end(); it1++)
+    {
+        std::cout << "  " << it1->GetName() << std::endl;
+    }
+     
+    PStringArray mask;
+    std::string s;   
+    istringstream ss(mediaFilter);
+    while (getline(ss, s, ';')) 
+    {
+        mask.AppendString("!"+s);
+    }
+    mediaFormats.Remove(mask);
+    
+    std::cout << "used codes" << std::endl;
+    for (OpalMediaFormatList::iterator it2 = mediaFormats.begin(); it2!=mediaFormats.end(); it2++)
+    {
+        std::cout << "  " << it2->GetName() << std::endl;
+    }
 }
 
 bool Manager::OnIncomingConnection(OpalConnection &connection, unsigned opts,
