@@ -68,6 +68,7 @@ class Command {
 class Call : public Command {
   private:
     PString remoteparty;
+    size_t dialtimeout = 10;
 
   public:
     bool ParseCommand( const char **cmds, std::vector< Command*> &sequence);

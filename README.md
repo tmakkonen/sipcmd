@@ -96,7 +96,7 @@ prog	:=  cmd ';' <prog> |
 cmd	:=  call | answer | hangup
 	  | dtmf | voice | record | wait
 	  | setlabel | loop
-call	:=  'c' remoteparty
+call	:=  'c' remoteparty [ timeout ]
 answer	:=  'a' [ expectedremoteparty ]
 hangup	:=  'h'
 dtmf	:=  'd' digits
@@ -108,6 +108,7 @@ closed	:=  'c'
 iter	:=  'i'
 activity:=  'a'
 wait	:=  'w' [ activity | silence ] [ closed ] millis
+timeout	:=  'w' millis
 setlabel:=  'l' label
 loop	:=  'j' [ how-many-times ] [ 'l' label ]
 </pre>

@@ -106,13 +106,42 @@ bool Call::ParseCommand(
   for(; (*cmds)[i]  &&  (*cmds)[i] != ';'; i++)
     ;
 
-  if(!i) {
+  size_t j = 0U;
+  for(; j < i && (*cmds)[j] != 'w'; j++)
+    ;
+
+  if(!j) {
 
     errorstring = "Call: Empty remote party";
     return false;
   }
 
-  remoteparty = PString(*cmds, i);
+  if(j != i) {
+    if(i - j < 2U) {
+      errorstring = "Call: Timeout: No digits specified";
+      return false;
+    }
+
+    for(size_t k = j + 1U; k < i; k++) {
+      if(!isdigit((*cmds)[k])) {
+	errorstring = "Call: Timeout: Invalid digits specified";
+	return false;
+      }
+    }
+
+    if((*cmds)[j + 1U] == '0') {
+      errorstring = "Call: Timeout: Leading zero is not allowed";
+      return false;
+    }
+
+    dialtimeout = 0;
+
+    for(size_t k = j + 1U; k < i; k++) {
+      dialtimeout = dialtimeout * 10U + size_t((*cmds)[k] - '0');
+    }
+  }
+
+  remoteparty = PString(*cmds, j);
   *cmds = &((*cmds)[i]);
   sequence.push_back(this);
   return true;
@@ -167,7 +196,7 @@ bool Call::RunCommand(const std::string &loopsuffix) {
     if(state == TPState::TERMINATED) {
       errorstring = "Call: application terminated";
       return false;
-    } else if (difftime(time(NULL), secsnow) > DIAL_TIMEOUT) {
+    } else if (difftime(time(NULL), secsnow) > dialtimeout / 1000.0) {
       errorstring = "Call: Dial timed out";
       return false;
     }

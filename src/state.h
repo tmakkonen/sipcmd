@@ -35,8 +35,6 @@
 #define WAIT_SILENCE_TIME_IN_MS			300U
 #define WAIT_ACTIVITY_TIME_IN_MS		100U
 #define RECORD_SILENCE_TIME_IN_MS		300U
-// global dailing timeout in seconds
-#define DIAL_TIMEOUT				10
 
 class TPState {
   private:
