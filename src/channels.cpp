@@ -28,6 +28,8 @@
 #include "main.h"
 #include "state.h"
 
+using namespace std;
+
 bool TestChanAudio::PlaybackAudio(const bool raw_rtp) {
 
     std::cout << __func__ << std::endl;

@@ -23,12 +23,18 @@
 #include <ptlib.h>
 #include <sip/sip.h>
 #include <h323/h323.h>
+
+#ifdef WIN32
+#include <ep/localep.h>
+#include <rtp/rtp.h>
+#else
 #include <opal/localep.h>
+#endif
 
 #ifdef DEBUG
-#define debug cout
+#define debug std::cout
 #else
-#define debug 0 && cout
+#define debug 0 && std::cout
 #endif
 #endif
 

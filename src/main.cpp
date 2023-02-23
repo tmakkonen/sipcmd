@@ -162,12 +162,15 @@ void signalHandler(int sig) {
 }
 
 void initSignalHandling() {
+    // FIXME
+    /*
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = signalHandler;
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
+    */
 }
 
 TestProcess::TestProcess() :
@@ -474,7 +477,7 @@ bool Manager::SendDTMF(const PString &dtmf)
     return ok;
 }
             
-RTPSession::RTPSession(const Params& options) : RTP_UDP(options), m_audioformat(NULL)
+RTPSession::RTPSession(const Init& options) : OpalRTPSession(options), m_audioformat(NULL)
 {
   std::cout << "RTP session created" << std::endl;
 }
@@ -556,7 +559,7 @@ bool Manager::MakeCall(const PString &remoteParty)
       }
     
       // create rtp session
-      RTP_Session::Params p;
+      OpalRTPSession::Init p;
       p.id = OpalMediaType::Audio().GetDefinition()->GetDefaultSessionId();
       p.encoding = OpalMediaType::Audio().GetDefinition()->GetRTPEncoding();
       p.userData = new RTPUserData;
