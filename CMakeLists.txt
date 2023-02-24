@@ -24,7 +24,7 @@ target_link_libraries(SipCmdLib PRIVATE ${PTLIB_LIBRARIES})
 target_include_directories(SipCmdLib PUBLIC ${OPAL_INCLUDE_DIRS})
 target_link_libraries(SipCmdLib PRIVATE ${OPAL_LIBRARIES})
 
-target_link_libraries(SipCmdLib PUBLIC date::date date::date-tz)
+target_link_libraries(SipCmdLib PRIVATE date::date date::date-tz)
 
 # Add source to this project's executable.
 add_executable (SipCmd "src/main.cpp")
