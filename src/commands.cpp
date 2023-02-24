@@ -499,8 +499,7 @@ bool Wait::RunCommand(const std::string &loopsuffix) {
       return true;
     }
     //cout << "Wait: usleep " << n << endl;
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for((WAIT_SLEEP_ACCURACY * 1000)us);
+    std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(WAIT_SLEEP_ACCURACY));
     if(!closed
         &&  TPState::Instance().GetState() == TPState::TERMINATED) {
       errorstring = "Wait: application terminated";
