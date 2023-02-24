@@ -21,9 +21,11 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <thread>
 #include <cstring>
 #include <ctime>
 #include <cassert>
+#include <chrono>
 
 #include "commands.h"
 #include "state.h"
@@ -497,7 +499,8 @@ bool Wait::RunCommand(const std::string &loopsuffix) {
       return true;
     }
     //cout << "Wait: usleep " << n << endl;
-    usleep(WAIT_SLEEP_ACCURACY * 1000);
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for((WAIT_SLEEP_ACCURACY * 1000)us);
     if(!closed
         &&  TPState::Instance().GetState() == TPState::TERMINATED) {
       errorstring = "Wait: application terminated";
