@@ -1,0 +1,1 @@
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=/home/ssoroosh/vcpkg/scripts/buildsystems/vcpkg.cmake
