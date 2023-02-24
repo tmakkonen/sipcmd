@@ -13,6 +13,8 @@ find_package(PTLib REQUIRED)
 set(OPAL_USE_STATIC_LIBS 1)
 find_package(OPAL REQUIRED)
 
+find_package(date CONFIG REQUIRED)
+
 # Add source to this project's library.
 add_library(SipCmdLib "src/commands.cpp" "src/channels.cpp")
 
@@ -21,6 +23,8 @@ target_link_libraries(SipCmdLib PRIVATE ${PTLIB_LIBRARIES})
 
 target_include_directories(SipCmdLib PUBLIC ${OPAL_INCLUDE_DIRS})
 target_link_libraries(SipCmdLib PRIVATE ${OPAL_LIBRARIES})
+
+target_link_libraries(SipCmdLib PRIVATE date::date date::date-tz)
 
 # Add source to this project's executable.
 add_executable (SipCmd "src/main.cpp")
