@@ -392,7 +392,7 @@ bool Record::ParseCommand(
     errorstring = "Record: No digits or invalid digits specified";
     return false;
   }
-  sscanf(*cmds, "%u", &millis);
+  sscanf_s(*cmds, "%u", &millis);
   *cmds = &((*cmds)[i]);
   // filename
   for(i = 0U; (*cmds)[i]  &&  (*cmds)[i] != ';'; i++);
@@ -466,7 +466,7 @@ bool Wait::ParseCommand(
     return false;
   }
 
-  sscanf(*cmds, "%lu", &millis);
+  sscanf_s(*cmds, "%llu", &millis);
   *cmds = &((*cmds)[i]);
   sequence.push_back(this);
   return true;
@@ -554,7 +554,7 @@ bool Loop::ParseCommand(
 
   size_t numdigits = strspn(*cmds, "0123456789");
   if(numdigits  &&  numdigits < 8)
-    sscanf(*cmds, "%d", &loops);
+    sscanf_s(*cmds, "%d", &loops);
 
   (*cmds) += numdigits;
   if(tolower(**cmds) == 'l') {
