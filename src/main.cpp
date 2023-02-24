@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <chrono>
+#include <thread>
 #include <signal.h>
 #include "main.h"
 #include "commands.h"
@@ -462,10 +464,8 @@ bool Manager::SendDTMF(const PString &dtmf)
                 // sleep a while
                 std::cout << "sent DTMF: [" << dtmf[i] << "]"  << std::endl;
 
-                struct timespec tp;
-                tp.tv_sec = 0;
-                tp.tv_nsec = 500 * 1000 * 1000; // half a second
-                nanosleep (&tp, 0);
+                using namespace std::chrono_literals;
+                std::this_thread::sleep_for(500ms);
             }
         }
         ok = (i == dtmf.GetSize() - 1 ? true : false);
