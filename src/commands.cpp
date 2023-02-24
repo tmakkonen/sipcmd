@@ -22,7 +22,6 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
-#include <ctime>
 #include <cassert>
 #include <chrono>
 
@@ -240,9 +239,7 @@ bool Answer::ParseCommand(
 
 bool Answer::RunCommand(const std::string &loopsuffix) {
   std::cout << "## Answer ##" << std::endl;
-  char buf[256];
-  time_t secsnow = time(NULL);
-  cout << "Answer: starting at " << ctime_r(&secsnow, buf) << endl;
+  cout << "Answer: starting at " << system_clock::now() << endl;
 
   // set up
   PString token;
@@ -287,9 +284,7 @@ bool Hangup::ParseCommand(
 bool Hangup::RunCommand(const std::string &loopsuffix) {
 
   std::cout << "## Hangup ##" << std::endl;
-  char buf[256];
-  time_t secsnow = time(NULL);
-  cout << "Hangup: at " << ctime_r(&secsnow, buf) << endl;
+  cout << "Hangup: at " << system_clock::now() << endl;
   TPState &tpstate = TPState::Instance();
 
   // hangup
@@ -597,12 +592,10 @@ bool Loop::RunCommand(const std::string &loopsuffix) {
 
   int timesleft = 0;
   do {
-    char buf[256];
-    time_t secsnow = time(NULL);
     stringstream newsuffix;
     newsuffix << loopsuffix << "_" << timesleft;
     cout << "Loop: iteration \"" << newsuffix.str()
-      << "\" at " << ctime_r(&secsnow, buf) << endl;
+      << "\" at " << system_clock::now() << endl;
 
     if(!Command::Run(loopedsequence, newsuffix.str()))
       return false;
