@@ -3,8 +3,6 @@
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)
-# TODO: Correct path
-set(CMAKE_TOOLCHAIN_FILE D:/Source/Repos/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 project ("SipCmd" VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -19,10 +17,10 @@ find_package(OPAL REQUIRED)
 add_library(SipCmdLib "src/commands.cpp" "src/channels.cpp")
 
 target_include_directories(SipCmdLib PUBLIC ${PTLIB_INCLUDE_DIRS})
-target_link_libraries(SipCmdLib PRIVATE PTLib)
+target_link_libraries(SipCmdLib PRIVATE ${PTLIB_LIBRARIES})
 
 target_include_directories(SipCmdLib PUBLIC ${OPAL_INCLUDE_DIRS})
-target_link_libraries(SipCmdLib PRIVATE OPAL)
+target_link_libraries(SipCmdLib PRIVATE ${OPAL_LIBRARIES})
 
 # Add source to this project's executable.
 add_executable (SipCmd "src/main.cpp")
@@ -30,7 +28,7 @@ add_executable (SipCmd "src/main.cpp")
 target_link_libraries(SipCmd PRIVATE SipCmdLib)
 message(${PTLIB_INCLUDE_DIRS})
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
+if (CMAKE_VERSION VERSION_GREATER 3.10)
   set_property(TARGET SipCmdLib PROPERTY CXX_STANDARD 14)
   set_property(TARGET SipCmd PROPERTY CXX_STANDARD 14)
 endif()
