@@ -401,7 +401,7 @@ OpalMediaStream *LocalConnection::CreateMediaStream(
 bool RawMediaStream::ReadData(BYTE *data, PINDEX size, PINDEX &length) {
     //cout << __func__ << endl;
     length = 0;
-    if (!isOpen) {
+    if (!IsOpen()) {
         cout << "channel not open!" << endl;
         return false;
     }
@@ -432,7 +432,7 @@ bool RawMediaStream::WriteData(const BYTE *data,
         PINDEX length, PINDEX &written)
 {
 //    cout << __func__ << endl;
-    if (!isOpen) {
+    if (!IsOpen()) {
         cout << "channel not open!" << endl;
         return false;
     }

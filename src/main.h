@@ -87,13 +87,13 @@ class RTPSession : public OpalRTPSession {
     RTPSession(const Init& options);
 
     virtual SendReceiveStatus OnReceiveData(
-        RTP_DataFrame &frame);
+        RTP_DataFrame &frame) override;
 
     virtual SendReceiveStatus OnSendData(
-        RTP_DataFrame &frame);
+        RTP_DataFrame &frame) override;
     
     virtual SendReceiveStatus OnReadTimeout(
-        RTP_DataFrame &frame);
+        RTP_DataFrame &frame) override;
 
     void SelectAudioFormat(const Payload p);
     OpalAudioFormat &GetAudioFormat() const { return *m_audioformat; }
