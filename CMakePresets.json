@@ -2,7 +2,13 @@
     "version": 3,
     "configurePresets": [
         {
+          "name": "all-base",
+          "hidden": true,
+          "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        },
+        {
             "name": "windows-base",
+            "inherits": "all-base",
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
@@ -59,6 +65,7 @@
         },
         {
             "name": "linux-debug",
+            "inherits": "all-base",
             "displayName": "Linux Debug",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
