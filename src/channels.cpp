@@ -28,6 +28,8 @@
 #include "main.h"
 #include "state.h"
 
+using namespace std;
+
 bool TestChanAudio::PlaybackAudio(const bool raw_rtp) {
 
     std::cout << __func__ << std::endl;
@@ -399,7 +401,7 @@ OpalMediaStream *LocalConnection::CreateMediaStream(
 bool RawMediaStream::ReadData(BYTE *data, PINDEX size, PINDEX &length) {
     //cout << __func__ << endl;
     length = 0;
-    if (!isOpen) {
+    if (!IsOpen()) {
         cout << "channel not open!" << endl;
         return false;
     }
@@ -430,7 +432,7 @@ bool RawMediaStream::WriteData(const BYTE *data,
         PINDEX length, PINDEX &written)
 {
 //    cout << __func__ << endl;
-    if (!isOpen) {
+    if (!IsOpen()) {
         cout << "channel not open!" << endl;
         return false;
     }

@@ -22,6 +22,7 @@
 #define CS_MANAGER_H
 
 #include "includes.h"
+#include "rtp/rtp_session.h"
 
 class Manager;
 
@@ -73,8 +74,8 @@ class LocalEndPoint : public OpalLocalEndPoint {
 };
 
 
-class RTPSession : public RTP_UDP {
-  PCLASSINFO(RTPSession, RTP_UDP);
+class RTPSession : public OpalRTPSession {
+  PCLASSINFO(RTPSession, OpalRTPSession);
 
   public:
     enum Payload {
@@ -83,16 +84,16 @@ class RTPSession : public RTP_UDP {
       G711_ULAW
     };
 
-    RTPSession(const Params& options);
+    RTPSession(const Init& options);
 
     virtual SendReceiveStatus OnReceiveData(
-        RTP_DataFrame &frame);
+        RTP_DataFrame &frame) override;
 
     virtual SendReceiveStatus OnSendData(
-        RTP_DataFrame &frame);
+        RTP_DataFrame &frame) override;
     
     virtual SendReceiveStatus OnReadTimeout(
-        RTP_DataFrame &frame);
+        RTP_DataFrame &frame) override;
 
     void SelectAudioFormat(const Payload p);
     OpalAudioFormat &GetAudioFormat() const { return *m_audioformat; }
@@ -100,13 +101,6 @@ class RTPSession : public RTP_UDP {
   private:
     OpalAudioFormat *m_audioformat;
     // xxx
-};
-
-class RTPUserData : public RTP_UserData {
-  public:
-    RTPUserData() : RTP_UserData() {}
-
-    virtual void OnTxStatistics(const RTP_Session &session);
 };
 
 class Manager : public OpalManager

@@ -21,12 +21,18 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <thread>
 #include <cstring>
-#include <ctime>
 #include <cassert>
+#include <chrono>
+
+#include <date/date.h>
 
 #include "commands.h"
 #include "state.h"
+
+ using namespace date;
+ using namespace std::chrono;
 
 ////
 // Command
@@ -157,12 +163,11 @@ bool Call::RunCommand(const std::string &loopsuffix) {
   // if one has been specified and there is no address for username
   PString rp = remoteparty;
   PString gw = TPState::Instance().GetGateway();
-  char buf[256];
-  time_t secsnow = time(NULL);
+  system_clock::time_point secsnow = system_clock::now();
   if(rp.Find('@') == P_MAX_INDEX  &&  !gw.IsEmpty()) {
     cout << "TestPhone::Main: calling \""
       << rp << "\" using gateway \"" << gw << "\""
-      << " at " << ctime_r(&secsnow, buf) << endl;
+      << " at " << secsnow << endl;
 
     switch (TPState::Instance().GetProtocol()) {
       case TPState::SIP: rp = "sip:" + rp + "@" + gw; break;
@@ -176,7 +181,7 @@ bool Call::RunCommand(const std::string &loopsuffix) {
   }
   else {
     cout << "TestPhone::Main: calling \"" << rp << "\""
-      << " at " << ctime_r(&secsnow, buf) << endl;
+      << " at " << secsnow << endl;
   }
 
   // dial out
@@ -191,12 +196,12 @@ bool Call::RunCommand(const std::string &loopsuffix) {
 
   do {
     cout << "TestPhone::Main: calling \"" << rp << "\""
-	 << " for " << difftime(time(NULL), secsnow) << endl;
+	 << " for " << duration_cast<seconds>(system_clock::now() - secsnow).count() << endl;
     state = tpstate.WaitForStateChange(TPState::ESTABLISHED);
     if(state == TPState::TERMINATED) {
       errorstring = "Call: application terminated";
       return false;
-    } else if (difftime(time(NULL), secsnow) > dialtimeout / 1000.0) {
+    } else if (duration_cast<seconds>(system_clock::now() - secsnow).count() > dialtimeout / 1000.0) {
       errorstring = "Call: Dial timed out";
       return false;
     }
@@ -235,9 +240,7 @@ bool Answer::ParseCommand(
 
 bool Answer::RunCommand(const std::string &loopsuffix) {
   std::cout << "## Answer ##" << std::endl;
-  char buf[256];
-  time_t secsnow = time(NULL);
-  cout << "Answer: starting at " << ctime_r(&secsnow, buf) << endl;
+  cout << "Answer: starting at " << system_clock::now() << endl;
 
   // set up
   PString token;
@@ -282,9 +285,7 @@ bool Hangup::ParseCommand(
 bool Hangup::RunCommand(const std::string &loopsuffix) {
 
   std::cout << "## Hangup ##" << std::endl;
-  char buf[256];
-  time_t secsnow = time(NULL);
-  cout << "Hangup: at " << ctime_r(&secsnow, buf) << endl;
+  cout << "Hangup: at " << system_clock::now() << endl;
   TPState &tpstate = TPState::Instance();
 
   // hangup
@@ -391,7 +392,7 @@ bool Record::ParseCommand(
     errorstring = "Record: No digits or invalid digits specified";
     return false;
   }
-  sscanf(*cmds, "%u", &millis);
+  sscanf_s(*cmds, "%u", &millis);
   *cmds = &((*cmds)[i]);
   // filename
   for(i = 0U; (*cmds)[i]  &&  (*cmds)[i] != ';'; i++);
@@ -465,7 +466,7 @@ bool Wait::ParseCommand(
     return false;
   }
 
-  sscanf(*cmds, "%u", &millis);
+  sscanf_s(*cmds, "%llu", &millis);
   *cmds = &((*cmds)[i]);
   sequence.push_back(this);
   return true;
@@ -497,7 +498,7 @@ bool Wait::RunCommand(const std::string &loopsuffix) {
       return true;
     }
     //cout << "Wait: usleep " << n << endl;
-    usleep(WAIT_SLEEP_ACCURACY * 1000);
+    std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(WAIT_SLEEP_ACCURACY));
     if(!closed
         &&  TPState::Instance().GetState() == TPState::TERMINATED) {
       errorstring = "Wait: application terminated";
@@ -553,7 +554,7 @@ bool Loop::ParseCommand(
 
   size_t numdigits = strspn(*cmds, "0123456789");
   if(numdigits  &&  numdigits < 8)
-    sscanf(*cmds, "%d", &loops);
+    sscanf_s(*cmds, "%d", &loops);
 
   (*cmds) += numdigits;
   if(tolower(**cmds) == 'l') {
@@ -592,12 +593,10 @@ bool Loop::RunCommand(const std::string &loopsuffix) {
 
   int timesleft = 0;
   do {
-    char buf[256];
-    time_t secsnow = time(NULL);
     stringstream newsuffix;
     newsuffix << loopsuffix << "_" << timesleft;
     cout << "Loop: iteration \"" << newsuffix.str()
-      << "\" at " << ctime_r(&secsnow, buf) << endl;
+      << "\" at " << system_clock::now() << endl;
 
     if(!Command::Run(loopedsequence, newsuffix.str()))
       return false;

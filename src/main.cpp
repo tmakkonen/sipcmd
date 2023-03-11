@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <chrono>
+#include <thread>
 #include <signal.h>
 #include "main.h"
 #include "commands.h"
@@ -162,12 +164,15 @@ void signalHandler(int sig) {
 }
 
 void initSignalHandling() {
+    // FIXME
+    /*
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = signalHandler;
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
+    */
 }
 
 TestProcess::TestProcess() :
@@ -459,10 +464,8 @@ bool Manager::SendDTMF(const PString &dtmf)
                 // sleep a while
                 std::cout << "sent DTMF: [" << dtmf[i] << "]"  << std::endl;
 
-                struct timespec tp;
-                tp.tv_sec = 0;
-                tp.tv_nsec = 500 * 1000 * 1000; // half a second
-                nanosleep (&tp, 0);
+                using namespace std::chrono_literals;
+                std::this_thread::sleep_for(500ms);
             }
         }
         ok = (i == dtmf.GetSize() - 1 ? true : false);
@@ -474,7 +477,7 @@ bool Manager::SendDTMF(const PString &dtmf)
     return ok;
 }
             
-RTPSession::RTPSession(const Params& options) : RTP_UDP(options), m_audioformat(NULL)
+RTPSession::RTPSession(const Init& options) : OpalRTPSession(options), m_audioformat(NULL)
 {
   std::cout << "RTP session created" << std::endl;
 }
@@ -503,9 +506,8 @@ void RTPSession::SelectAudioFormat(const Payload payload)
   }
 }
 
-RTP_Session::SendReceiveStatus RTPSession::OnReceiveData(RTP_DataFrame &frame) 
+OpalRTPSession::SendReceiveStatus RTPSession::OnReceiveData(RTP_DataFrame &frame) 
 {
-  SendReceiveStatus ret =  RTP_UDP::Internal_OnReceiveData(frame);
 #if 1 // master dump
   std::ostringstream os;
   frame.PrintOn(os);
@@ -514,12 +516,11 @@ RTP_Session::SendReceiveStatus RTPSession::OnReceiveData(RTP_DataFrame &frame)
 
   TPState::Instance().GetRecordAudio().RecordFromBuffer(
       (const char*)frame.GetPayloadPtr(), frame.GetPayloadSize(), true);
-  return ret;
+  return OpalRTPSession::SendReceiveStatus::e_ProcessPacket;
 }
 
-RTP_Session::SendReceiveStatus RTPSession::OnSendData(RTP_DataFrame &frame) 
+OpalRTPSession::SendReceiveStatus RTPSession::OnSendData(RTP_DataFrame &frame) 
 {
-  SendReceiveStatus ret = RTP_UDP::Internal_OnSendData(frame);
 
 #if 1 // master dump
   std::ostringstream os;
@@ -527,16 +528,15 @@ RTP_Session::SendReceiveStatus RTPSession::OnSendData(RTP_DataFrame &frame)
   std::cout << os.str() << std::endl;
 #endif
 
-  return ret;
+  return OpalRTPSession::SendReceiveStatus::e_IgnorePacket;
 }
 
 
-RTP_Session::SendReceiveStatus RTPSession::OnReadTimeout(RTP_DataFrame &frame) {
+OpalRTPSession::SendReceiveStatus RTPSession::OnReadTimeout(RTP_DataFrame &frame) {
   std::cout << __func__ << std::endl;
   TPState::Instance().GetRecordAudio().StopRecording(false);
-  return RTP_UDP::OnReadTimeout(frame);
+  return OpalRTPSession::SendReceiveStatus::e_AbortTransport;
 }
-
 
 bool Manager::MakeCall(const PString &remoteParty)
 {
@@ -556,7 +556,7 @@ bool Manager::MakeCall(const PString &remoteParty)
       }
     
       // create rtp session
-      RTP_Session::Params p;
+      OpalRTPSession::Init p();
       p.id = OpalMediaType::Audio().GetDefinition()->GetDefaultSessionId();
       p.encoding = OpalMediaType::Audio().GetDefinition()->GetRTPEncoding();
       p.userData = new RTPUserData;
@@ -661,12 +661,6 @@ bool Manager::OnOpenMediaStream(OpalConnection &connection,
 
     return true;
 }
-
-void RTPUserData::OnTxStatistics(const RTP_Session &session)
-{
-  cout << __func__ << endl;
-}
-
 
 OpalConnection::AnswerCallResponse Manager::OnAnswerCall(
         OpalConnection &connection,
