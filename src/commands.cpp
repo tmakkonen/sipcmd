@@ -22,11 +22,16 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
-#include <ctime>
 #include <cassert>
+#include <chrono>
+
+#include <date/date.h>
 
 #include "commands.h"
 #include "state.h"
+
+ using namespace date;
+ using namespace std::chrono;
 
 ////
 // Command
@@ -157,12 +162,11 @@ bool Call::RunCommand(const std::string &loopsuffix) {
   // if one has been specified and there is no address for username
   PString rp = remoteparty;
   PString gw = TPState::Instance().GetGateway();
-  char buf[256];
-  time_t secsnow = time(NULL);
+  system_clock::time_point secsnow = system_clock::now();
   if(rp.Find('@') == P_MAX_INDEX  &&  !gw.IsEmpty()) {
     cout << "TestPhone::Main: calling \""
       << rp << "\" using gateway \"" << gw << "\""
-      << " at " << ctime_r(&secsnow, buf) << endl;
+      << " at " << secsnow << endl;
 
     switch (TPState::Instance().GetProtocol()) {
       case TPState::SIP: rp = "sip:" + rp + "@" + gw; break;
@@ -176,7 +180,7 @@ bool Call::RunCommand(const std::string &loopsuffix) {
   }
   else {
     cout << "TestPhone::Main: calling \"" << rp << "\""
-      << " at " << ctime_r(&secsnow, buf) << endl;
+      << " at " << secsnow << endl;
   }
 
   // dial out
@@ -191,12 +195,12 @@ bool Call::RunCommand(const std::string &loopsuffix) {
 
   do {
     cout << "TestPhone::Main: calling \"" << rp << "\""
-	 << " for " << difftime(time(NULL), secsnow) << endl;
+	 << " for " << duration_cast<seconds>(system_clock::now() - secsnow).count() << endl;
     state = tpstate.WaitForStateChange(TPState::ESTABLISHED);
     if(state == TPState::TERMINATED) {
       errorstring = "Call: application terminated";
       return false;
-    } else if (difftime(time(NULL), secsnow) > dialtimeout / 1000.0) {
+    } else if (duration_cast<seconds>(system_clock::now() - secsnow).count() > dialtimeout / 1000.0) {
       errorstring = "Call: Dial timed out";
       return false;
     }
@@ -235,9 +239,7 @@ bool Answer::ParseCommand(
 
 bool Answer::RunCommand(const std::string &loopsuffix) {
   std::cout << "## Answer ##" << std::endl;
-  char buf[256];
-  time_t secsnow = time(NULL);
-  cout << "Answer: starting at " << ctime_r(&secsnow, buf) << endl;
+  cout << "Answer: starting at " << system_clock::now() << endl;
 
   // set up
   PString token;
@@ -282,9 +284,7 @@ bool Hangup::ParseCommand(
 bool Hangup::RunCommand(const std::string &loopsuffix) {
 
   std::cout << "## Hangup ##" << std::endl;
-  char buf[256];
-  time_t secsnow = time(NULL);
-  cout << "Hangup: at " << ctime_r(&secsnow, buf) << endl;
+  cout << "Hangup: at " << system_clock::now() << endl;
   TPState &tpstate = TPState::Instance();
 
   // hangup
@@ -465,7 +465,7 @@ bool Wait::ParseCommand(
     return false;
   }
 
-  sscanf(*cmds, "%u", &millis);
+  sscanf(*cmds, "%lu", &millis);
   *cmds = &((*cmds)[i]);
   sequence.push_back(this);
   return true;
@@ -592,12 +592,10 @@ bool Loop::RunCommand(const std::string &loopsuffix) {
 
   int timesleft = 0;
   do {
-    char buf[256];
-    time_t secsnow = time(NULL);
     stringstream newsuffix;
     newsuffix << loopsuffix << "_" << timesleft;
     cout << "Loop: iteration \"" << newsuffix.str()
-      << "\" at " << ctime_r(&secsnow, buf) << endl;
+      << "\" at " << system_clock::now() << endl;
 
     if(!Command::Run(loopedsequence, newsuffix.str()))
       return false;
